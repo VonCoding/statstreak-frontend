@@ -1,0 +1,167 @@
+.matchupContainer {
+  padding: 2rem;
+  color: #fff;
+  background-color: #0a0a0a;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+h1 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #f97316; /* Neon orange */
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.tab,
+.tabActive {
+  background: transparent;
+  border: 2px solid #f97316;
+  color: #f97316;
+  padding: 0.4rem 1.2rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font-weight: bold;
+}
+
+.tabActive {
+  background-color: #f97316;
+  color: #0a0a0a;
+}
+
+.matchupGrid {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.teamColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 300px;
+}
+
+.playerCard {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  padding: 1rem;
+  border-radius: 12px;
+  color: white;
+}
+
+.playerHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.playerHeader img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #f97316;
+}
+
+.playerStatMain {
+  font-size: 1.4rem;
+  margin: 0.75rem 0;
+  font-weight: bold;
+}
+
+.details summary {
+  cursor: pointer;
+  margin-top: 0.5rem;
+  color: #f97316;
+  font-weight: bold;
+}
+
+.details p {
+  margin: 0.25rem 0;
+  font-size: 0.95rem;
+  color: #ccc;
+}
+
+.predictionRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.input {
+  background-color: transparent;
+  border: 1px solid #f97316;
+  padding: 0.3rem 0.6rem;
+  color: white;
+  border-radius: 6px;
+  width: 70px;
+  font-size: 0.9rem;
+}
+
+.ouToggle {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.pill {
+  padding: 0.3rem 0.8rem;
+  border: 1px solid #f97316;
+  border-radius: 999px;
+  background-color: transparent;
+  color: #f97316;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+.pill.active,
+.pill:hover {
+  background-color: #f97316;
+  color: #0a0a0a;
+}
+
+.goButton {
+  padding: 0.3rem 0.8rem;
+  background-color: #f97316;
+  color: #0a0a0a;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+}
+
+.spinnerContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #0a0a0a;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 6px solid #333;
+  border-top: 6px solid #f97316;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
