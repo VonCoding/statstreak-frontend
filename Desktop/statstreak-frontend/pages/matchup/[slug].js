@@ -1,141 +1,163 @@
-'use client';
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import styles from "../../styles/Matchup.module.css";
 
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import teamMap from '../../utils/teamMap';
-import playerImageMap from '../../utils/playerImageMap';
+const STAT_CATEGORIES = ["points", "rebounds", "assists", "fg3m"];
 
-function getSlugFromName(name) {
-  return name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-}
-
-export default function MatchupPage() {
+const Matchup = () => {
   const router = useRouter();
   const { slug } = router.query;
 
-  const [teamA, setTeamA] = useState(null);
-  const [teamB, setTeamB] = useState(null);
-  const [playersA, setPlayersA] = useState([]);
-  const [playersB, setPlayersB] = useState([]);
-  const [activeTab, setActiveTab] = useState('points');
-  const [boxiqData, setBoxiqData] = useState({});
-  const [dvpData, setDvpData] = useState({});
+  const [boxiqData, setBoxiqData] = useState(null);
+  const [dvpData, setDvpData] = useState(null);
+  const [statCategory, setStatCategory] = useState("points");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [predictionInputs, setPredictionInputs] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res1 = await fetch('https://boxiq-api.onrender.com/player-stats');
-        const playerStats = await res1.json();
-        const res2 = await fetch('https://boxiq-api.onrender.com/dvp-stats');
-        const dvpStats = await res2.json();
-        setBoxiqData(playerStats);
-        setDvpData(dvpStats);
+        const [boxiqRes, dvpRes] = await Promise.all([
+          fetch("https://boxiq-api.onrender.com/api/boxiq"),
+          fetch("https://boxiq-api.onrender.com/api/dvp"),
+        ]);
+        const [boxiqJson, dvpJson] = await Promise.all([
+          boxiqRes.json(),
+          dvpRes.json(),
+        ]);
+        setBoxiqData(boxiqJson);
+        setDvpData(dvpJson);
         setLoading(false);
-      } catch (err) {
-        console.error('Fetch error:', err);
-        setError('Failed to load matchup data.');
+      } catch (error) {
+        console.error("Data fetch error:", error);
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (!slug || loading || error) return;
-
-    const [slugA, slugB] = slug.split('-vs-');
-    const teamAData = teamMap[slugA];
-    const teamBData = teamMap[slugB];
-    if (!teamAData || !teamBData) return;
-
-    setTeamA(teamAData);
-    setTeamB(teamBData);
-
-    const aPlayers = (boxiqData[teamAData.abbrev] || [])
-      .sort((a, b) => b[`avg_${activeTab}`] - a[`avg_${activeTab}`])
-      .slice(0, 6);
-    const bPlayers = (boxiqData[teamBData.abbrev] || [])
-      .sort((a, b) => b[`avg_${activeTab}`] - a[`avg_${activeTab}`])
-      .slice(0, 6);
-
-    setPlayersA(aPlayers);
-    setPlayersB(bPlayers);
-  }, [slug, activeTab, boxiqData, loading, error]);
-
-  const statTabs = ['points', 'rebounds', 'assists', 'fg3m'];
-
-  const renderPlayerCard = (player) => {
-    const slug = getSlugFromName(player.player);
-    const streak = player.streaks?.[activeTab] || `Solid contributor in ${activeTab}`;
+  if (loading) {
     return (
-      <div key={slug} className="bg-[#132C4D] p-4 rounded-lg flex items-center space-x-4">
-        <img
-          src={playerImageMap[slug] || '/default-headshot.png'}
-          alt={player.player}
-          className="w-16 h-16 rounded-full object-cover"
-        />
-        <div>
-          <p className="font-semibold">{player.player}</p>
-          <p className="text-sm text-gray-300">Avg {activeTab}: {player[`avg_${activeTab}`]}</p>
-          <details className="text-sm mt-1 text-gray-400">
-            <summary className="cursor-pointer">BoxIQ Insight</summary>
-            <div className="mt-2">{streak}</div>
-          </details>
+      <div className={styles.spinnerContainer}>
+        <div className={styles.spinner}></div>
+      </div>
+    );
+  }
+
+  if (!slug || !boxiqData || !dvpData) return <div>Loading matchup...</div>;
+
+  const [teamAName, teamBName] = slug.split("-vs-");
+
+  const getTopPlayers = (team) => {
+    const players = boxiqData[team]?.players || [];
+    return players
+      .sort((a, b) => b.stats[statCategory] - a.stats[statCategory])
+      .slice(0, 6);
+  };
+
+  const renderPlayer = (player) => {
+    const statLine = player.stats[statCategory];
+    const streak = player.streaks?.[statCategory];
+    const dvp = dvpData?.[player.opponent]?.[player.position]?.[statCategory];
+
+    const key = `${player.name}_${statCategory}`;
+
+    const handleChange = (field, value) => {
+      setPredictionInputs((prev) => ({
+        ...prev,
+        [key]: { ...prev[key], [field]: value },
+      }));
+    };
+
+    const input = predictionInputs[key] || {};
+
+    return (
+      <div key={player.name} className={styles.playerCard}>
+        <div className={styles.playerHeader}>
+          <img src={player.image} alt={player.name} />
+          <div>
+            <h4>{player.name}</h4>
+            <p>#{player.jersey} · {player.position}</p>
+          </div>
         </div>
+        <div className={styles.playerStatMain}>
+          <span>{statLine} {statCategory}</span>
+        </div>
+        <details className={styles.details}>
+          <summary>BoxIQ Insights</summary>
+          <p><strong>Streak:</strong> {streak}</p>
+          <p><strong>DvP:</strong> {dvp}</p>
+          <div className={styles.predictionRow}>
+            <input
+              type="number"
+              placeholder="Line"
+              value={input.line || ""}
+              onChange={(e) => handleChange("line", e.target.value)}
+              className={styles.input}
+            />
+            <input
+              type="number"
+              placeholder="Odds"
+              value={input.odds || ""}
+              onChange={(e) => handleChange("odds", e.target.value)}
+              className={styles.input}
+            />
+            <div className={styles.ouToggle}>
+              <button
+                className={`${styles.pill} ${input.choice === "over" ? styles.active : ""}`}
+                onClick={() => handleChange("choice", "over")}
+              >
+                Over
+              </button>
+              <button
+                className={`${styles.pill} ${input.choice === "under" ? styles.active : ""}`}
+                onClick={() => handleChange("choice", "under")}
+              >
+                Under
+              </button>
+            </div>
+            <button
+              className={styles.goButton}
+              onClick={() => console.log("Submit prediction for", player.name, input)}
+            >
+              Go
+            </button>
+          </div>
+        </details>
       </div>
     );
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0B1D36] text-white flex flex-col items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#FF9D00] mb-4"></div>
-        <p>Loading matchup data...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-[#0B1D36] text-red-500 flex items-center justify-center">
-        <p>{error}</p>
-      </div>
-    );
-  }
+  const teamAPlayers = getTopPlayers(teamAName);
+  const teamBPlayers = getTopPlayers(teamBName);
 
   return (
-    <div className="min-h-screen bg-[#0B1D36] text-white p-6">
-      <h1 className="text-2xl font-bold text-center mb-4">
-        {teamA?.name} vs {teamB?.name}
-      </h1>
+    <div className={styles.matchupContainer}>
+      <h1>{teamAName} vs {teamBName}</h1>
 
-      <div className="flex justify-center mb-6 space-x-4">
-        {statTabs.map((tab) => (
+      <div className={styles.tabs}>
+        {STAT_CATEGORIES.map((cat) => (
           <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 rounded ${
-              activeTab === tab ? 'bg-[#FF9D00] text-black' : 'bg-[#1A365D] text-white'
-            }`}
+            key={cat}
+            className={statCategory === cat ? styles.tabActive : styles.tab}
+            onClick={() => setStatCategory(cat)}
           >
-            {tab.toUpperCase()}
+            {cat.toUpperCase()}
           </button>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <h2 className="text-xl font-bold mb-2 text-center">{teamA?.abbrev}</h2>
-          <div className="space-y-4">{playersA.map(renderPlayerCard)}</div>
+      <div className={styles.matchupGrid}>
+        <div className={styles.teamColumn}>
+          {teamAPlayers.map(renderPlayer)}
         </div>
-        <div>
-          <h2 className="text-xl font-bold mb-2 text-center">{teamB?.abbrev}</h2>
-          <div className="space-y-4">{playersB.map(renderPlayerCard)}</div>
+
+        <div className={styles.teamColumn}>
+          {teamBPlayers.map(renderPlayer)}
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default Matchup;
