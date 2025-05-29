@@ -1,7 +1,8 @@
+'use client';
+
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import teamMap from '../../utils/teamMap';
-import playerImageMap from '../../utils/playerImageMap';
 
 function getSlugFromName(name) {
   return name.toLowerCase().replace(/[^a-z0-9]/g, '-');
@@ -11,34 +12,34 @@ export default function MatchupPage() {
   const router = useRouter();
   const { slug } = router.query;
 
-  const [loading, setLoading] = useState(true);
   const [teamA, setTeamA] = useState(null);
   const [teamB, setTeamB] = useState(null);
   const [playersA, setPlayersA] = useState([]);
   const [playersB, setPlayersB] = useState([]);
-  const [boxiqData, setBoxiqData] = useState({});
-  const [dvpData, setDvpData] = useState({});
   const [activeTab, setActiveTab] = useState('points');
   const [inputs, setInputs] = useState({});
   const [ouSelect, setOuSelect] = useState({});
   const [predictions, setPredictions] = useState({});
-
-  const statTabs = ['points', 'rebounds', 'assists', 'fg3m'];
+  const [boxiqData, setBoxiqData] = useState({});
+  const [dvpData, setDvpData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [statsRes, dvpRes] = await Promise.all([
-          fetch('https://boxiq-api.onrender.com'),
-          fetch('https://boxiq-api.onrender.com/dvp')
-        ]);
-        const stats = await statsRes.json();
-        const dvp = await dvpRes.json();
-        setBoxiqData(stats);
-        setDvpData(dvp);
+        const res1 = await fetch('https://boxiq-api.onrender.com/player-stats');
+        const playerStats = await res1.json();
+
+        const res2 = await fetch('https://boxiq-api.onrender.com/dvp-stats');
+        const dvpStats = await res2.json();
+
+        setBoxiqData(playerStats);
+        setDvpData(dvpStats);
         setLoading(false);
-      } catch (error) {
-        console.error('Error fetching BoxIQ data:', error);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Failed to load data.');
         setLoading(false);
       }
     };
@@ -47,7 +48,7 @@ export default function MatchupPage() {
   }, []);
 
   useEffect(() => {
-    if (!slug || !boxiqData || !Object.keys(boxiqData).length) return;
+    if (!slug || loading || error) return;
 
     const [slugA, slugB] = slug.split('-vs-');
     const teamAData = teamMap[slugA];
@@ -67,7 +68,9 @@ export default function MatchupPage() {
 
     setPlayersA(aPlayers);
     setPlayersB(bPlayers);
-  }, [slug, activeTab, boxiqData]);
+  }, [slug, activeTab, boxiqData, loading, error]);
+
+  const statTabs = ['points', 'rebounds', 'assists', 'fg3m'];
 
   const calculatePrediction = (player, category, line, odds, choice, opponentAbbrev) => {
     const avg = player[`avg_${category}`];
@@ -109,9 +112,11 @@ export default function MatchupPage() {
     const odds = input.odds;
     const choice = ouSelect[inputKey];
     const result = predictions[inputKey];
-    const opponentAbbrev = teamKey === 'teamA' ? teamB?.abbrev : teamA?.abbrev;
 
-    const streakNote = player.streaks?.[activeTab] || `Solid contributor in ${activeTab}`;
+    const streakStat = player.streaks?.[activeTab];
+    const streakNote = streakStat || `Solid contributor in ${activeTab}`;
+
+    const opponentAbbrev = teamKey === 'teamA' ? teamB?.abbrev : teamA?.abbrev;
 
     return (
       <div key={slug} className="bg-[#132C4D] p-4 rounded-lg flex items-center space-x-4">
@@ -199,6 +204,7 @@ export default function MatchupPage() {
                   GO
                 </button>
               </div>
+
               {result && (
                 <div className="mt-2 text-xs text-[#FF9D00]">
                   <p>
@@ -217,8 +223,19 @@ export default function MatchupPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0B1D36] text-white">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#FF9D00] border-t-transparent"></div>
+      <div className="min-h-screen bg-[#0B1D36] text-white flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <div className="loader mb-4"></div>
+          <p>Loading matchup data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#0B1D36] text-white flex items-center justify-center">
+        <p>{error}</p>
       </div>
     );
   }
@@ -230,27 +247,4 @@ export default function MatchupPage() {
       </h1>
 
       <div className="flex justify-center mb-6 space-x-4">
-        {statTabs.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 rounded-full text-sm font-semibold ${
-              activeTab === tab ? 'bg-[#FF9D00] text-black' : 'bg-[#122947] text-gray-300'
-            }`}
-          >
-            {tab.toUpperCase()}
-          </button>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-2 gap-6">
-        <div className="space-y-4">
-          {playersA.map((p) => renderPlayerCard(p, 'teamA'))}
-        </div>
-        <div className="space-y-4">
-          {playersB.map((p) => renderPlayerCard(p, 'teamB'))}
-        </div>
-      </div>
-    </div>
-  );
-}
+        {statTabs.map((tab 
