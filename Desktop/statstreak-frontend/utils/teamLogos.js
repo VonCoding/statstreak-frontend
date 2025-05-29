@@ -1,0 +1,35 @@
+
+const teamLogos = {
+  "Atlanta Hawks": "/teams/hawks.png",
+  "Boston Celtics": "/teams/celtics.png",
+  "Brooklyn Nets": "/teams/nets.png",
+  "Charlotte Hornets": "/teams/hornets.png",
+  "Chicago Bulls": "/teams/bulls.png",
+  "Cleveland Cavaliers": "/teams/cavaliers.png",
+  "Dallas Mavericks": "/teams/mavericks.png",
+  "Denver Nuggets": "/teams/nuggets.png",
+  "Detroit Pistons": "/teams/pistons.png",
+  "Golden State Warriors": "/teams/warriors.png",
+  "Houston Rockets": "/teams/rockets.png",
+  "Indiana Pacers": "/teams/pacers.png",
+  "LA Clippers": "/teams/clippers.png",
+  "Los Angeles Lakers": "/teams/lakers.png",
+  "Memphis Grizzlies": "/teams/grizzlies.png",
+  "Miami Heat": "/teams/heat.png",
+  "Milwaukee Bucks": "/teams/bucks.png",
+  "Minnesota Timberwolves": "/teams/timberwolves.png",
+  "New Orleans Pelicans": "/teams/pelicans.png",
+  "New York Knicks": "/teams/knicks.png",
+  "Oklahoma City Thunder": "/teams/thunder.png",
+  "Orlando Magic": "/teams/magic.png",
+  "Philadelphia 76ers": "/teams/sixers.png",
+  "Phoenix Suns": "/teams/suns.png",
+  "Portland Trail Blazers": "/teams/blazers.png",
+  "Sacramento Kings": "/teams/kings.png",
+  "San Antonio Spurs": "/teams/spurs.png",
+  "Toronto Raptors": "/teams/raptors.png",
+  "Utah Jazz": "/teams/jazz.png",
+  "Washington Wizards": "/teams/wizards.png"
+};
+
+export default teamLogos;

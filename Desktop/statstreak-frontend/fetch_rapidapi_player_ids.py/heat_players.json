@@ -1,0 +1,194 @@
+[
+  {
+    "id": 458,
+    "firstname": "Terry",
+    "lastname": "Rozier",
+    "team": null,
+    "position": "G",
+    "jersey": 3
+  },
+  {
+    "id": 446,
+    "firstname": "Josh",
+    "lastname": "Richardson",
+    "team": null,
+    "position": "G",
+    "jersey": 7
+  },
+  {
+    "id": 724,
+    "firstname": "Bam",
+    "lastname": "Adebayo",
+    "team": null,
+    "position": "C-F",
+    "jersey": 13
+  },
+  {
+    "id": 753,
+    "firstname": "Thomas",
+    "lastname": "Bryant",
+    "team": null,
+    "position": "C-F",
+    "jersey": 13
+  },
+  {
+    "id": 1018,
+    "firstname": "Duncan",
+    "lastname": "Robinson",
+    "team": null,
+    "position": "F",
+    "jersey": 55
+  },
+  {
+    "id": 1815,
+    "firstname": "Haywood",
+    "lastname": "Highsmith",
+    "team": null,
+    "position": "F",
+    "jersey": 24
+  },
+  {
+    "id": 1866,
+    "firstname": "Tyler",
+    "lastname": "Herro",
+    "team": null,
+    "position": "G",
+    "jersey": 14
+  },
+  {
+    "id": 1875,
+    "firstname": "Nassir",
+    "lastname": "Little",
+    "team": null,
+    "position": "F-G",
+    "jersey": 10
+  },
+  {
+    "id": 2799,
+    "firstname": "Josh",
+    "lastname": "Christopher",
+    "team": null,
+    "position": "G",
+    "jersey": 9
+  },
+  {
+    "id": 2834,
+    "firstname": "Davion",
+    "lastname": "Mitchell",
+    "team": null,
+    "position": "G",
+    "jersey": 15
+  },
+  {
+    "id": 3360,
+    "firstname": "Dru",
+    "lastname": "Smith",
+    "team": null,
+    "position": "G",
+    "jersey": 9
+  },
+  {
+    "id": 3453,
+    "firstname": "Nikola",
+    "lastname": "Jovic",
+    "team": null,
+    "position": "F",
+    "jersey": 5
+  },
+  {
+    "id": 4085,
+    "firstname": "Jamie Jr.",
+    "lastname": "Jaquez",
+    "team": null,
+    "position": "G",
+    "jersey": null
+  },
+  {
+    "id": 4134,
+    "firstname": "Keshad",
+    "lastname": "Johnson",
+    "team": null,
+    "position": "F",
+    "jersey": null
+  },
+  {
+    "id": 4135,
+    "firstname": "Pelle",
+    "lastname": "Larsson",
+    "team": null,
+    "position": "G",
+    "jersey": 9
+  },
+  {
+    "id": 4136,
+    "firstname": "Zyon",
+    "lastname": "Pullin",
+    "team": null,
+    "position": "G",
+    "jersey": null
+  },
+  {
+    "id": 4137,
+    "firstname": "Isaiah",
+    "lastname": "Stevens",
+    "team": null,
+    "position": "G",
+    "jersey": null
+  },
+  {
+    "id": 4138,
+    "firstname": "Kel'el",
+    "lastname": "Ware",
+    "team": null,
+    "position": "C",
+    "jersey": 7
+  },
+  {
+    "id": 4213,
+    "firstname": "Caleb",
+    "lastname": "Daniels",
+    "team": null,
+    "position": "G",
+    "jersey": 15
+  },
+  {
+    "id": 326,
+    "firstname": "Kevin",
+    "lastname": "Love",
+    "team": null,
+    "position": "F-C",
+    "jersey": null
+  },
+  {
+    "id": 84,
+    "firstname": "Alec",
+    "lastname": "Burks",
+    "team": null,
+    "position": "G",
+    "jersey": 5
+  },
+  {
+    "id": 86,
+    "firstname": "Jimmy",
+    "lastname": "Butler",
+    "team": null,
+    "position": "F",
+    "jersey": 22
+  },
+  {
+    "id": 18,
+    "firstname": "Kyle",
+    "lastname": "Anderson",
+    "team": null,
+    "position": "F-G",
+    "jersey": 5
+  },
+  {
+    "id": 548,
+    "firstname": "Andrew",
+    "lastname": "Wiggins",
+    "team": null,
+    "position": "F",
+    "jersey": 22
+  }
+]

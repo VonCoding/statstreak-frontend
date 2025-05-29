@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes marquee {
+  0%   { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    text-shadow: 0 0 2px #FF9D00, 0 0 4px #FF9D00;
+  }
+  50% {
+    text-shadow: 0 0 2px #FF9D00, 0 0 6px #FF9D00;
+  }
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.glow-pulse {
+  animation:
+    marquee 25s linear infinite,
+    glowPulse 2s ease-in-out infinite;
+}
+
+.statstreak-title {
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #FF9D00;
+  text-shadow: 0 0 4px rgba(255, 157, 0, 0.3);
+}
+
