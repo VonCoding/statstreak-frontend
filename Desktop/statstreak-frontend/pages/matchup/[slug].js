@@ -3,6 +3,7 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import teamMap from '../../utils/teamMap';
+import playerImageMap from '../../utils/playerImageMap';
 
 function getSlugFromName(name) {
   return name.toLowerCase().replace(/[^a-z0-9]/g, '-');
@@ -17,9 +18,6 @@ export default function MatchupPage() {
   const [playersA, setPlayersA] = useState([]);
   const [playersB, setPlayersB] = useState([]);
   const [activeTab, setActiveTab] = useState('points');
-  const [inputs, setInputs] = useState({});
-  const [ouSelect, setOuSelect] = useState({});
-  const [predictions, setPredictions] = useState({});
   const [boxiqData, setBoxiqData] = useState({});
   const [dvpData, setDvpData] = useState({});
   const [loading, setLoading] = useState(true);
@@ -30,16 +28,14 @@ export default function MatchupPage() {
       try {
         const res1 = await fetch('https://boxiq-api.onrender.com/player-stats');
         const playerStats = await res1.json();
-
         const res2 = await fetch('https://boxiq-api.onrender.com/dvp-stats');
         const dvpStats = await res2.json();
-
         setBoxiqData(playerStats);
         setDvpData(dvpStats);
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching data:', err);
-        setError('Failed to load data.');
+        console.error('Fetch error:', err);
+        setError('Failed to load matchup data.');
         setLoading(false);
       }
     };
@@ -53,7 +49,6 @@ export default function MatchupPage() {
     const [slugA, slugB] = slug.split('-vs-');
     const teamAData = teamMap[slugA];
     const teamBData = teamMap[slugB];
-
     if (!teamAData || !teamBData) return;
 
     setTeamA(teamAData);
@@ -72,52 +67,9 @@ export default function MatchupPage() {
 
   const statTabs = ['points', 'rebounds', 'assists', 'fg3m'];
 
-  const calculatePrediction = (player, category, line, odds, choice, opponentAbbrev) => {
-    const avg = player[`avg_${category}`];
-    const streak = player.streaks?.[category] || '';
-    const dvpValue = dvpData?.[opponentAbbrev]?.[category] || 0;
-
-    const oddsVal = Math.abs(parseInt(odds) || 0);
-    const deviation = avg - line;
-    const absDeviation = Math.abs(deviation);
-
-    let baseConfidence = Math.min(99, Math.max(30, (absDeviation / (avg || 1)) * 100));
-    baseConfidence += Math.min(20, oddsVal / 10);
-    baseConfidence += dvpValue > 0 ? (dvpValue < 5 ? -5 : dvpValue < 10 ? 0 : 5) : 0;
-
-    const recommend = deviation >= 0 ? 'under' : 'over';
-    const explanation = [
-      `📊 Avg ${category}: ${avg.toFixed(1)}`,
-      streak ? `🔥 Streak: ${streak}` : '',
-      dvpValue ? `🛡️ DvP Rank: ${dvpValue} vs ${category}` : '',
-      recommend === choice
-        ? `✅ BoxIQ agrees with your pick — we like the ${choice.toUpperCase()} here.`
-        : `⚠️ BoxIQ recommends the **${recommend.toUpperCase()}** based on recent trends.`
-    ]
-      .filter(Boolean)
-      .join('\n');
-
-    return {
-      confidence: Math.round(baseConfidence),
-      recommendation: recommend,
-      explanation
-    };
-  };
-
-  const renderPlayerCard = (player, teamKey) => {
+  const renderPlayerCard = (player) => {
     const slug = getSlugFromName(player.player);
-    const inputKey = `${teamKey}-${slug}`;
-    const input = inputs[inputKey] || {};
-    const line = parseFloat(input.line);
-    const odds = input.odds;
-    const choice = ouSelect[inputKey];
-    const result = predictions[inputKey];
-
-    const streakStat = player.streaks?.[activeTab];
-    const streakNote = streakStat || `Solid contributor in ${activeTab}`;
-
-    const opponentAbbrev = teamKey === 'teamA' ? teamB?.abbrev : teamA?.abbrev;
-
+    const streak = player.streaks?.[activeTab] || `Solid contributor in ${activeTab}`;
     return (
       <div key={slug} className="bg-[#132C4D] p-4 rounded-lg flex items-center space-x-4">
         <img
@@ -125,96 +77,12 @@ export default function MatchupPage() {
           alt={player.player}
           className="w-16 h-16 rounded-full object-cover"
         />
-        <div className="w-full">
+        <div>
           <p className="font-semibold">{player.player}</p>
-          <p className="text-sm text-gray-300">
-            Avg {activeTab}: {player[`avg_${activeTab}`]}
-          </p>
+          <p className="text-sm text-gray-300">Avg {activeTab}: {player[`avg_${activeTab}`]}</p>
           <details className="text-sm mt-1 text-gray-400">
-            <summary className="cursor-pointer">BoxIQ Insights</summary>
-            <div className="mt-2">
-              <p className="mb-1">{streakNote}</p>
-              <div className="flex items-center space-x-2 mt-1">
-                <input
-                  type="number"
-                  placeholder="Line"
-                  className="bg-[#0B1D36] text-white text-xs border border-[#FF9D00] px-2 py-1 rounded w-16"
-                  value={input.line || ''}
-                  onChange={(e) =>
-                    setInputs((prev) => ({
-                      ...prev,
-                      [inputKey]: { ...prev[inputKey], line: e.target.value }
-                    }))
-                  }
-                />
-                <input
-                  type="text"
-                  placeholder="Odds"
-                  className="bg-[#0B1D36] text-white text-xs border border-[#FF9D00] px-2 py-1 rounded w-16"
-                  value={input.odds || ''}
-                  onChange={(e) =>
-                    setInputs((prev) => ({
-                      ...prev,
-                      [inputKey]: { ...prev[inputKey], odds: e.target.value }
-                    }))
-                  }
-                />
-                <div className="flex space-x-1">
-                  <button
-                    className={`px-3 py-1 text-xs rounded-full border ${
-                      choice === 'over'
-                        ? 'bg-[#FF9D00] text-black'
-                        : 'bg-transparent text-[#FF9D00] border-[#FF9D00]'
-                    }`}
-                    onClick={() =>
-                      setOuSelect((prev) => ({ ...prev, [inputKey]: 'over' }))
-                    }
-                  >
-                    Over
-                  </button>
-                  <button
-                    className={`px-3 py-1 text-xs rounded-full border ${
-                      choice === 'under'
-                        ? 'bg-[#FF9D00] text-black'
-                        : 'bg-transparent text-[#FF9D00] border-[#FF9D00]'
-                    }`}
-                    onClick={() =>
-                      setOuSelect((prev) => ({ ...prev, [inputKey]: 'under' }))
-                    }
-                  >
-                    Under
-                  </button>
-                </div>
-                <button
-                  className="bg-[#FF9D00] text-black text-xs px-2 py-1 rounded font-bold"
-                  onClick={() => {
-                    if (line && odds && choice) {
-                      const prediction = calculatePrediction(
-                        player,
-                        activeTab,
-                        line,
-                        odds,
-                        choice,
-                        opponentAbbrev
-                      );
-                      setPredictions((prev) => ({ ...prev, [inputKey]: prediction }));
-                    }
-                  }}
-                >
-                  GO
-                </button>
-              </div>
-
-              {result && (
-                <div className="mt-2 text-xs text-[#FF9D00]">
-                  <p>
-                    🧠 <strong>BoxIQ Confidence:</strong> {result.confidence}% — Recommends{' '}
-                    <strong>{result.recommendation.toUpperCase()}</strong>
-                  </p>
-                  <pre className="whitespace-pre-wrap text-gray-300 mt-1">{result.explanation}</pre>
-                </div>
-              )}
-            </div>
+            <summary className="cursor-pointer">BoxIQ Insight</summary>
+            <div className="mt-2">{streak}</div>
           </details>
         </div>
       </div>
@@ -223,18 +91,16 @@ export default function MatchupPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0B1D36] text-white flex items-center justify-center">
-        <div className="flex flex-col items-center">
-          <div className="loader mb-4"></div>
-          <p>Loading matchup data...</p>
-        </div>
+      <div className="min-h-screen bg-[#0B1D36] text-white flex flex-col items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#FF9D00] mb-4"></div>
+        <p>Loading matchup data...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#0B1D36] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#0B1D36] text-red-500 flex items-center justify-center">
         <p>{error}</p>
       </div>
     );
@@ -247,4 +113,29 @@ export default function MatchupPage() {
       </h1>
 
       <div className="flex justify-center mb-6 space-x-4">
-        {statTabs.map((tab 
+        {statTabs.map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-4 py-2 rounded ${
+              activeTab === tab ? 'bg-[#FF9D00] text-black' : 'bg-[#1A365D] text-white'
+            }`}
+          >
+            {tab.toUpperCase()}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h2 className="text-xl font-bold mb-2 text-center">{teamA?.abbrev}</h2>
+          <div className="space-y-4">{playersA.map(renderPlayerCard)}</div>
+        </div>
+        <div>
+          <h2 className="text-xl font-bold mb-2 text-center">{teamB?.abbrev}</h2>
+          <div className="space-y-4">{playersB.map(renderPlayerCard)}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
