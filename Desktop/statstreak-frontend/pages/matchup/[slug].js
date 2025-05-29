@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import styles from "../../styles/Matchup.module.css";
+import playerImageMap from "../../utils/playerImageMap"; // Adjust path if different
 
 const MatchupPage = () => {
   const router = useRouter();
@@ -19,9 +20,7 @@ const MatchupPage = () => {
       const boxiqRes = await fetch("https://boxiq-api.onrender.com/api/boxiq");
       const dvpRes = await fetch("https://boxiq-api.onrender.com/api/dvp");
 
-      if (!boxiqRes.ok || !dvpRes.ok) {
-        throw new Error("Failed to fetch data");
-      }
+      if (!boxiqRes.ok || !dvpRes.ok) throw new Error("Failed to fetch data");
 
       const boxiqJson = await boxiqRes.json();
       const dvpJson = await dvpRes.json();
@@ -37,9 +36,7 @@ const MatchupPage = () => {
   };
 
   useEffect(() => {
-    if (slug) {
-      fetchData();
-    }
+    if (slug) fetchData();
   }, [slug]);
 
   if (loading) {
@@ -57,6 +54,10 @@ const MatchupPage = () => {
 
   const [teamA, teamB] = slug.split("-vs-");
 
+  const nameToSlug = (name) => {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  };
+
   const filterTopPlayers = (teamName) => {
     return Object.values(boxiqData)
       .filter((player) => player.team.toLowerCase() === teamName.toLowerCase())
@@ -70,10 +71,13 @@ const MatchupPage = () => {
     return (
       <div className={styles.teamColumn}>
         {players.map((player) => {
+          const imageSlug = nameToSlug(player.name);
+          const imageUrl = playerImageMap[imageSlug] || "/default-headshot.png";
+
           const streak = player.streaks?.[selectedStat];
           return (
             <div key={player.id} className={styles.playerCard}>
-              <img src={player.image} alt={player.name} />
+              <img src={imageUrl} alt={player.name} />
               <div className={styles.playerInfo}>
                 <h3>{player.name}</h3>
                 <p>#{player.jersey} | {player.position}</p>
