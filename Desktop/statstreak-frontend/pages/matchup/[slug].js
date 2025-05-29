@@ -1,6 +1,5 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import boxiqData from '../../utils/boxiq_player_stats.json';
 import teamMap from '../../utils/teamMap';
 
 const res = await fetch('https://boxiq-api.onrender.com');
@@ -8,6 +7,9 @@ const playerStats = await res.json();
 
 const res2 = await fetch('https://boxiq-api.onrender.com');
 const dvpStats = await res2.json();
+
+const res3 = await fetch('https://boxiq-api.onrender.com');
+const playerStats = await res.json();
 
 
 function getSlugFromName(name) {
