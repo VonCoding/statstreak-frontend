@@ -1,16 +1,7 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import teamMap from '../../utils/teamMap';
-
-const res = await fetch('https://boxiq-api.onrender.com');
-const playerStats = await res.json();
-
-const res2 = await fetch('https://boxiq-api.onrender.com');
-const dvpStats = await res2.json();
-
-const res3 = await fetch('https://boxiq-api.onrender.com');
-const playerStats = await res.json();
-
+import playerImageMap from '../../utils/playerImageMap';
 
 function getSlugFromName(name) {
   return name.toLowerCase().replace(/[^a-z0-9]/g, '-');
@@ -20,17 +11,44 @@ export default function MatchupPage() {
   const router = useRouter();
   const { slug } = router.query;
 
+  const [loading, setLoading] = useState(true);
   const [teamA, setTeamA] = useState(null);
   const [teamB, setTeamB] = useState(null);
   const [playersA, setPlayersA] = useState([]);
   const [playersB, setPlayersB] = useState([]);
+  const [boxiqData, setBoxiqData] = useState({});
+  const [dvpData, setDvpData] = useState({});
   const [activeTab, setActiveTab] = useState('points');
   const [inputs, setInputs] = useState({});
   const [ouSelect, setOuSelect] = useState({});
   const [predictions, setPredictions] = useState({});
 
+  const statTabs = ['points', 'rebounds', 'assists', 'fg3m'];
+
   useEffect(() => {
-    if (!slug) return;
+    const fetchData = async () => {
+      try {
+        const [statsRes, dvpRes] = await Promise.all([
+          fetch('https://boxiq-api.onrender.com'),
+          fetch('https://boxiq-api.onrender.com/dvp')
+        ]);
+        const stats = await statsRes.json();
+        const dvp = await dvpRes.json();
+        setBoxiqData(stats);
+        setDvpData(dvp);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching BoxIQ data:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (!slug || !boxiqData || !Object.keys(boxiqData).length) return;
+
     const [slugA, slugB] = slug.split('-vs-');
     const teamAData = teamMap[slugA];
     const teamBData = teamMap[slugB];
@@ -49,9 +67,7 @@ export default function MatchupPage() {
 
     setPlayersA(aPlayers);
     setPlayersB(bPlayers);
-  }, [slug, activeTab]);
-
-  const statTabs = ['points', 'rebounds', 'assists', 'fg3m'];
+  }, [slug, activeTab, boxiqData]);
 
   const calculatePrediction = (player, category, line, odds, choice, opponentAbbrev) => {
     const avg = player[`avg_${category}`];
@@ -62,11 +78,8 @@ export default function MatchupPage() {
     const deviation = avg - line;
     const absDeviation = Math.abs(deviation);
 
-    // Base confidence influenced by how far the line is from the average
     let baseConfidence = Math.min(99, Math.max(30, (absDeviation / (avg || 1)) * 100));
-    // Adjust based on odds
     baseConfidence += Math.min(20, oddsVal / 10);
-    // Factor in DvP - lower = tougher defense
     baseConfidence += dvpValue > 0 ? (dvpValue < 5 ? -5 : dvpValue < 10 ? 0 : 5) : 0;
 
     const recommend = deviation >= 0 ? 'under' : 'over';
@@ -96,11 +109,9 @@ export default function MatchupPage() {
     const odds = input.odds;
     const choice = ouSelect[inputKey];
     const result = predictions[inputKey];
-
-    const streakStat = player.streaks?.[activeTab];
-    const streakNote = streakStat || `Solid contributor in ${activeTab}`;
-
     const opponentAbbrev = teamKey === 'teamA' ? teamB?.abbrev : teamA?.abbrev;
+
+    const streakNote = player.streaks?.[activeTab] || `Solid contributor in ${activeTab}`;
 
     return (
       <div key={slug} className="bg-[#132C4D] p-4 rounded-lg flex items-center space-x-4">
@@ -188,7 +199,6 @@ export default function MatchupPage() {
                   GO
                 </button>
               </div>
-
               {result && (
                 <div className="mt-2 text-xs text-[#FF9D00]">
                   <p>
@@ -204,6 +214,14 @@ export default function MatchupPage() {
       </div>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0B1D36] text-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#FF9D00] border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0B1D36] text-white p-6">
