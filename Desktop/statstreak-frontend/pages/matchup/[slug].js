@@ -203,13 +203,14 @@ export default function MatchupPage() {
   };
 
   if (loading) {
-    return (
-      <div className={styles.loaderWrapper}>
-        <div className={styles.spinner}></div>
-        <p>Loading matchup...</p>
-      </div>
-    );
-  }
+  return (
+    <div className={styles.loaderWrapper}>
+      <div className={styles.spinner}></div>
+      <p>Loading matchup...</p>
+    </div>
+  );
+}
+
 
   const [slugA, slugB] = slug.split("-vs-");
   const teamA = teamMap[slugA];
