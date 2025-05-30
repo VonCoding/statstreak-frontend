@@ -79,21 +79,16 @@ const MatchupPage = () => {
 };
 
 
-    const filtered = Object.values(boxiqData)
-      .filter((player) => {
-        if (
-          !player ||
-          typeof player !== "object" ||
-          !player.team ||
-          typeof player.team !== "string"
-        ) {
-          console.warn("Skipping invalid player entry:", player);
-          return false;
-        }
-        return player.team === teamCode;
-      })
-      .sort((a, b) => (b[selectedStat] || 0) - (a[selectedStat] || 0))
-      .slice(0, 6);
+    const filtered = boxiqData[teamCode];
+if (!filtered || !Array.isArray(filtered)) {
+  console.warn(`No player array for team: ${teamCode}`);
+  return [];
+}
+
+return filtered
+  .sort((a, b) => (b[`avg_${selectedStat}`] || 0) - (a[`avg_${selectedStat}`] || 0))
+  .slice(0, 6);
+
 
     console.log(`Top ${selectedStat} players for ${teamCode}:`, filtered);
     return filtered;
