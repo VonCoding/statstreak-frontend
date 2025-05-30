@@ -61,15 +61,21 @@ const MatchupPage = () => {
   const filterTopPlayers = (teamName) => {
   return Object.values(boxiqData)
     .filter((player) => {
-      if (!player.team) {
-        console.warn(`Missing team for player: ${player.name}`);
+      if (
+        !player ||
+        !player.team ||
+        !player.name ||
+        typeof player.team !== "string"
+      ) {
+        console.warn("Skipping invalid player entry:", player);
         return false;
       }
       return player.team.toLowerCase() === teamName.toLowerCase();
     })
-    .sort((a, b) => b[selectedStat] - a[selectedStat])
+    .sort((a, b) => (b[selectedStat] || 0) - (a[selectedStat] || 0))
     .slice(0, 6);
 };
+
 
   const renderPlayers = (team) => {
     const players = filterTopPlayers(team);
