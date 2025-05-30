@@ -2,7 +2,7 @@
   background: #0B1D36;
   color: white;
   min-height: 100vh;
-  padding: 2rem;
+  padding: 2rem 4vw;
   text-align: center;
 }
 
@@ -15,10 +15,10 @@
 }
 
 .activeTab, .inactiveTab {
-  padding: 0.5rem 1.25rem;
+  padding: 0.6rem 1.4rem;
   border-radius: 999px;
   font-weight: bold;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   border: none;
   cursor: pointer;
 }
@@ -35,7 +35,7 @@
 
 .matchupContainer {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: flex-start;
   gap: 3rem;
   flex-wrap: wrap;
@@ -45,24 +45,25 @@
 .teamColumn {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.2rem;
   width: 100%;
-  max-width: 500px;
+  max-width: 550px;
 }
 
 .playerCard {
   background: #132C4D;
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  padding: 1rem;
   display: flex;
   align-items: center;
   gap: 1rem;
-  min-height: 100px;
+  min-height: 110px;
+  width: 100%;
 }
 
 .headshot {
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
@@ -78,31 +79,31 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.5rem;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 
 .topRow h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 600;
   flex: 1;
 }
 
 .topRow span {
   color: #ccc;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
 }
 
 .streak {
   font-style: italic;
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
+  font-size: 0.78rem;
+  margin-top: 0.3rem;
   color: #FF9D00;
 }
 
 .dropdownToggle {
   margin-top: 0.5rem;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #FF9D00;
   background: transparent;
   border: none;
@@ -112,7 +113,8 @@
 .predictionDropdown {
   margin-top: 0.75rem;
   border-top: 1px solid #333;
-  padding-top: 0.5rem;
+  padding-top: 0.75rem;
+  width: 100%;
 }
 
 .predictionRow {
@@ -128,13 +130,13 @@
   border: 1px solid #FF9D00;
   color: white;
   font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
+  padding: 0.3rem 0.5rem;
   border-radius: 4px;
-  width: 60px;
+  width: 65px;
 }
 
 .ouBtn, .selectedBtn, .goBtn {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   padding: 0.3rem 0.75rem;
   border-radius: 999px;
   border: 1px solid #FF9D00;
@@ -163,7 +165,7 @@
 .predictionResult pre {
   white-space: pre-wrap;
   color: #ccc;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
 }
 
 .divider {
