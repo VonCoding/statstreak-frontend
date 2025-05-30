@@ -66,14 +66,18 @@ const MatchupPage = () => {
     return <p className={styles.error}>{error || "Data not available"}</p>;
   }
 
-  const [teamA, teamB] = slug.split("-vs-");
+  const filterTopPlayers = (teamAbbrev) => {
+  const players = boxiqData[teamAbbrev];
+  if (!players) {
+    console.warn(`Missing team for players: ${teamAbbrev}`);
+    return [];
+  }
 
-  const filterTopPlayers = (teamSlugName) => {
-    const teamCode = TEAM_NAME_MAP[teamSlugName.toLowerCase()];
-    if (!teamCode) {
-      console.warn("No team code found for:", teamSlugName);
-      return [];
-    }
+  return players
+    .sort((a, b) => (b[`avg_${selectedStat}`] || 0) - (a[`avg_${selectedStat}`] || 0))
+    .slice(0, 6);
+};
+
 
     const filtered = Object.values(boxiqData)
       .filter((player) => {
