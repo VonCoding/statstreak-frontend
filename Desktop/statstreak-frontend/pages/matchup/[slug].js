@@ -148,6 +148,6 @@ const MatchupPage = () => {
       </div>
     </div>
   );
-}:
+};
 
 export default MatchupPage;
